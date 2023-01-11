@@ -1,0 +1,17 @@
+name: remote_logging
+description: Send error to loggly on mobile or into console on web
+version: 1.0.0
+homepage: https://github.com/justprodev/flutter_remote_logging.git
+
+environment:
+  sdk: '>=2.18.2 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  http:
+  logging:
+
+dev_dependencies:
+  flutter_lints:
