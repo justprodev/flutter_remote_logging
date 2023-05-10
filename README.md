@@ -1,5 +1,5 @@
 # flutter_remote_logging
-Send [Logger()](https://pub.dev/packages/logging) messages to loggly.com
+Sending [Logger()](https://pub.dev/packages/logging) messages to loggly.com
 
 ```dart
 
