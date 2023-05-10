@@ -1,5 +1,5 @@
 name: remote_logging
-description: Send error to loggly on mobile or into console on web
+description: Sending Logger() messages to loggly.com
 version: 1.0.1
 homepage: https://github.com/justprodev/flutter_remote_logging.git
 
