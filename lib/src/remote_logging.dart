@@ -16,11 +16,13 @@ void initLogging(
   List<String>? verboseLoggers,
   TagsProvider? tagsProvider,
   bool Function()? printToConsole,
+  String Function(String loggerName, String message)? preProcess,
 }) {
   final logglyUrl = Uri.parse("https://logs-01.loggly.com/inputs/$logglyToken");
 
   processRecord(LogRecord record) {
-    String message = record.message;
+    String message = preProcess!=null ? preProcess(record.loggerName, record.message) : record.message;
+
     if (record.error != null) {
       message += '\n${record.error.toString()}';
     }
@@ -34,7 +36,8 @@ void initLogging(
       loggly(logglyUrl, message, tags: tags);
     }
 
-    if (kDebugMode || printToConsole?.call() == true) debugPrint('${record.loggerName} $message ${record.stackTrace ?? ''}');
+    if (kDebugMode || printToConsole?.call() == true)
+      debugPrint('${record.loggerName} $message ${record.stackTrace ?? ''}');
   }
 
   // init handlers
