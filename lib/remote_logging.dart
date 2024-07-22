@@ -6,4 +6,5 @@ export 'package:logging/logging.dart';
 
 export 'src/model.dart';
 export 'src/remote_logging.dart';
+export 'src/remote/loggly.dart' show logglyTasks;
 
