@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
+// Created by alex@justprodev.com on 27.05.2022.
+
 import 'package:logging/logging.dart';
 import 'package:remote_logging/src/model.dart';
 
 import 'remote/loggly.dart';
-
-/// Created by alex@justprodev.com on 27.05.2022.
 
 ///
 /// Watch the root [Logger] and then send messages addressed [verboseLoggers] to loggly
@@ -17,17 +16,21 @@ void initLogging(
   TagsProvider? tagsProvider,
   bool Function()? printToConsole,
   String Function(String loggerName, String message)? preProcess,
+  bool includeStackTrace = false,
 }) {
   final logglyUrl = Uri.parse("https://logs-01.loggly.com/inputs/$logglyToken");
 
   processRecord(LogRecord record) {
-    String message = preProcess!=null ? preProcess(record.loggerName, record.message) : record.message;
+    String message = preProcess != null ? preProcess(record.loggerName, record.message) : record.message;
 
     if (record.error != null) {
       message += '\n${record.error.toString()}';
+      if (includeStackTrace && record.stackTrace != null) {
+        message += '\n${record.stackTrace}';
+      }
     }
 
-    final tags = <String>[record.loggerName, record.level.name];
+    final tags = <String>[record.level.name, if (record.loggerName.isNotEmpty) record.loggerName];
 
     if (tagsProvider != null) tags.addAll(tagsProvider.call(record));
 
@@ -36,8 +39,10 @@ void initLogging(
       loggly(logglyUrl, message, tags: tags);
     }
 
-    if (kDebugMode || printToConsole?.call() == true)
-      debugPrint('${record.loggerName} $message ${record.stackTrace ?? ''}');
+    if (printToConsole?.call() == true) {
+      // ignore: avoid_print
+      print('${record.loggerName} $message ${record.stackTrace ?? ''}');
+    }
   }
 
   // init handlers
