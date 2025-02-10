@@ -7,9 +7,6 @@ environment:
   sdk: '>=2.18.2 <3.0.0'
 
 dependencies:
-  flutter:
-    sdk: flutter
-
   http:
   logging:
 

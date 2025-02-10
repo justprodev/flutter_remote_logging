@@ -1,11 +1,8 @@
-
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
 /// Created by alex@justprodev.com on 27.05.2022.
 
-import 'web_tags.dart'
-  if (dart.library.io) 'mobile_tags.dart';
+import 'web_tags.dart' if (dart.library.io) 'mobile_tags.dart';
 
 /// Non-completed tasks
 final Set<Future> logglyTasks = {};
@@ -21,7 +18,8 @@ Future<void> loggly(Uri url, String message, {List<String>? tags}) async {
     logglyTasks.add(task);
     await task;
   } catch (e, trace) {
-    if (kDebugMode) debugPrint("Error sending message to loggly $e $trace");
+    // ignore: avoid_print
+    print("Error sending message to loggly $e $trace");
   } finally {
     logglyTasks.remove(task);
   }

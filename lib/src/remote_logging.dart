@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
+// Created by alex@justprodev.com on 27.05.2022.
+
 import 'package:logging/logging.dart';
 import 'package:remote_logging/src/model.dart';
 
 import 'remote/loggly.dart';
-
-/// Created by alex@justprodev.com on 27.05.2022.
 
 ///
 /// Watch the root [Logger] and then send messages addressed [verboseLoggers] to loggly
@@ -36,8 +35,10 @@ void initLogging(
       loggly(logglyUrl, message, tags: tags);
     }
 
-    if (kDebugMode || printToConsole?.call() == true)
-      debugPrint('${record.loggerName} $message ${record.stackTrace ?? ''}');
+    if (printToConsole?.call() == true) {
+      // ignore: avoid_print
+      print('${record.loggerName} $message ${record.stackTrace ?? ''}');
+    }
   }
 
   // init handlers
