@@ -11,7 +11,7 @@ void main() {
 
   test('collector verbose', () async {
     final collector = _TestLogCollector();
-    initRemoteLogging([collector], verboseLoggers: ['test']);
+    initRemoteLogging(collector, verboseLoggers: ['test']);
     Logger('test').info('Test message');
     expect(collector.messages.length, 1);
     expect(collector.messages.first, 'Test message');
@@ -19,7 +19,7 @@ void main() {
 
   test('collector severe', () async {
     final collector = _TestLogCollector();
-    initRemoteLogging([collector]);
+    initRemoteLogging(collector);
     Logger('test').severe('Test message');
     expect(collector.messages.length, 1);
     expect(collector.messages.first, 'Test message');
@@ -30,7 +30,7 @@ void main() {
 
   test('collector severe exception', () async {
     final collector = _TestLogCollector();
-    initRemoteLogging([collector]);
+    initRemoteLogging(collector);
     final stacktrace = StackTrace.current;
     Logger('test').severe('Test message', Exception('test exception'), stacktrace);
     expect(collector.messages.first.contains('Test message'), isTrue);
@@ -39,7 +39,7 @@ void main() {
 
   test('collector severe stacktrace', () async {
     final collector = _TestLogCollector();
-    initRemoteLogging([collector], includeStackTrace: true);
+    initRemoteLogging(collector, includeStackTrace: true);
     final stacktrace = StackTrace.current;
     Logger('test').severe('Test message', Exception('test exception'), stacktrace);
     expect(collector.messages.first.contains(stacktrace.toString()), isTrue);
@@ -47,7 +47,7 @@ void main() {
 
   test('collector tags', () async {
     final collector = _TestLogCollector();
-    initRemoteLogging([collector], tagsProvider: (_) => ['tag1', 'tag2']);
+    initRemoteLogging(collector, tagsProvider: (_) => ['tag1', 'tag2']);
     Logger('logger').severe('Test message');
     expect(collector.messages.length, 1);
     expect(collector.messages.first, 'Test message');
@@ -63,7 +63,7 @@ void main() {
     final collector = _TestLogCollector();
     final outputs = <String>[];
     final records = <LogRecord>[];
-    initRemoteLogging([collector], output: (record, message) {
+    initRemoteLogging(collector, output: (record, message) {
       outputs.add(message);
       records.add(record);
     });
@@ -77,18 +77,9 @@ void main() {
     expect(records.first.message, 'Test message');
   });
 
-  test('multiple collectors', () async {
-    final collector1 = _TestLogCollector();
-    final collector2 = _TestLogCollector();
-    initRemoteLogging([collector1, collector2]);
-    Logger.root.severe('Test message');
-    expect(collector1.messages.length, 1);
-    expect(collector2.messages.length, 1);
-  });
-
   group('tasks', () {
     test('concurrency', () async {
-      initRemoteLogging([_DelayLogCollector()], verboseLoggers: ['test']);
+      initRemoteLogging(_DelayLogCollector(), verboseLoggers: ['test']);
       final logger = Logger('test');
 
       logger.info('100');
@@ -104,12 +95,14 @@ void main() {
       expect(tasks.length, 0, reason: 'All tasks should be completed after 300ms');
     });
 
-    test('error', () async {
-      initRemoteLogging([_ErrorLogCollector()]);
+    test('wait tasks', () async {
+      initRemoteLogging(_ErrorLogCollector());
       Logger.root.severe('Test message');
-      expect(tasks.length, 1, reason: 'One task should be queued');
-      final task = tasks.first;
-      await expectLater(task, completes, reason: 'Task should complete without throwing');
+      Logger.root.severe('Test message');
+      Logger.root.severe('Test message');
+      expect(tasks.length, 3, reason: 'Three tasks should be queued');
+      await expectLater(waitForLoggingTasks(), completes, reason: 'Tasks should complete without throwing');
+      expect(tasks.length, 0, reason: 'All tasks should be completed');
     });
   });
 }

@@ -19,7 +19,7 @@ final Set<Future> tasks = {};
 /// [preProcess] pre-process message before sending to collectors (e.g., hide sensitive info)
 /// [includeStackTrace] include stack trace in the message sent to collectors
 void initRemoteLogging(
-  List<LogCollector> collectors, {
+  LogCollector collector, {
   List<String>? verboseLoggers,
   TagsProvider? tagsProvider,
   Function(LogRecord, String)? output,
@@ -45,17 +45,12 @@ void initRemoteLogging(
 
     // SEVERE messages will be sent to loggly anyway in
     if (record.level == Level.SEVERE || (verboseLoggers?.contains(record.loggerName) == true)) {
-      for (final collector in collectors) {
-        final completer = Completer.sync();
-        tasks.add(completer.future);
-        collector.collect(message, tags: tags).catchError((e, trace) {
-          // ignore: avoid_print
-          print("Error sending message to collector $e $trace");
-        }).whenComplete(() {
-          completer.complete();
-          tasks.remove(completer.future);
-        });
-      }
+      final task = collector.collect(message, tags: tags);
+      tasks.add(task);
+      task.catchError((e, trace) {
+        // ignore: avoid_print
+        print("Error sending message to collector $e $trace");
+      }).whenComplete(() => tasks.remove(task));
     }
 
     if (output != null) {
@@ -67,6 +62,12 @@ void initRemoteLogging(
   hierarchicalLoggingEnabled = true;
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen(processRecord);
+}
+
+Future<void> waitForLoggingTasks() async {
+  try {
+    await Future.wait(tasks);
+  } catch (_) {}
 }
 
 ///
@@ -84,7 +85,7 @@ void initLogging(
   bool includeStackTrace = false,
 }) {
   initRemoteLogging(
-    [LogglyCollector(logglyToken)],
+    LogglyCollector(logglyToken),
     verboseLoggers: verboseLoggers,
     tagsProvider: tagsProvider,
     output: printToConsole != null ? (_, message) => print(message) : null,
