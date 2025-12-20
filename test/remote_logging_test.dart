@@ -77,6 +77,18 @@ void main() {
     expect(records.first.message, 'Test message');
   });
 
+  test('preProcess', () async {
+    final collector = _TestLogCollector();
+    initRemoteLogging(
+      collector,
+      verboseLoggers: ['test'],
+      preProcess: (loggerName, message) => message.replaceAll(RegExp(r'password: \d+'), 'password: [HIDDEN]'),
+    );
+    Logger('test').info('Test message with password: 12345');
+    expect(collector.messages.length, 1);
+    expect(collector.messages.first, 'Test message with password: [HIDDEN]');
+  });
+
   group('tasks', () {
     test('concurrency', () async {
       initRemoteLogging(_DelayLogCollector(), verboseLoggers: ['test']);
