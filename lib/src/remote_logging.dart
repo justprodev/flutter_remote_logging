@@ -64,6 +64,7 @@ void initRemoteLogging(
   Logger.root.onRecord.listen(processRecord);
 }
 
+/// Wait for all logging tasks to complete
 Future<void> waitForLoggingTasks() async {
   try {
     await Future.wait(tasks);
