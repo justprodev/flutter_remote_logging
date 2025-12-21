@@ -1,5 +1,5 @@
 name: remote_logging
-description: Sending Logger() messages to loggly.com
+description: Sending Logger() messages to various remote logging services
 version: 2.0.0
 homepage: https://github.com/justprodev/flutter_remote_logging.git
 
