@@ -12,7 +12,7 @@ class SplunkCollector extends HttpCollector {
           url: Uri.parse('https://$host/services/collector/event'),
           headers: {
             'Authorization': 'Splunk $token',
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json;charset=utf-8',
           },
         );
 
